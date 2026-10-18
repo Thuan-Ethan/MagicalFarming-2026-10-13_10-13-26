@@ -2,7 +2,7 @@
 - Project name: MagicalFarming
 - Unity version: Unity 6000.6.3f1
 - Active game object:
-  - Name: Player
+  - Name: Inventory
   - Tag: Untagged
-  - Layer: Player
+  - Layer: UI
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
