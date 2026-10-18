@@ -1,7 +1,7 @@
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
-
 
 public class InventoryUI : MonoBehaviour
 {
@@ -14,41 +14,67 @@ public class InventoryUI : MonoBehaviour
         inventoryPanel.SetActive(false);
     }
 
-    void Update()
+    private void Start()
     {
-        if (Keyboard.current != null && Keyboard.current.iKey.wasPressedThisFrame)
+        player.inventory.OnChanged += SetupProduct;
+
+        // Đồng bộ UI lần đầu.
+        SetupProduct();
+    }
+
+    private void OnDestroy()
+    {
+        if (player != null && player.inventory != null)
+        {
+            player.inventory.OnChanged -= SetupProduct;
+        }
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current != null &&
+            Keyboard.current.iKey.wasPressedThisFrame)
         {
             ToggleInventory();
-            SetupProduct();
         }
     }
 
     public void ToggleInventory()
     {
-        if (!inventoryPanel.activeSelf)
+        bool isOpening = !inventoryPanel.activeSelf;
+
+        inventoryPanel.SetActive(isOpening);
+
+        if (isOpening)
         {
-            inventoryPanel.SetActive(true);
-        }
-        else 
-        {
-            inventoryPanel.SetActive(false);
+            SetupProduct();
         }
     }
 
     public void SetupProduct()
     {
-        if(slots.Count == player.inventory.slots.Count)
+        if (player == null || player.inventory == null)
+            return;
+
+        if (slots.Count != player.inventory.slots.Count)
         {
-            for (int i = 0; i < slots.Count; i++)
+            Debug.LogWarning(
+                "Số lượng UI slots không khớp Inventory slots!"
+            );
+            return;
+        }
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            Inventory.Slot slot = player.inventory.slots[i];
+
+            if (slot.type != CollectableType.NONE)
             {
-                if (player.inventory.slots[i].type != CollectableType.NONE)
-                {
-                    slots[i].SetItem(player.inventory.slots[i]);
-                }
-                else
-                {
-                    slots[i].SetEmpty();
-                }
+                slots[i].SetItem(slot);
+            }
+            else
+            {
+                slots[i].SetEmpty();
             }
         }
     }

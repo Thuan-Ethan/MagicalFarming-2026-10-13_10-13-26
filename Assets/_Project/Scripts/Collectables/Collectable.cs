@@ -11,8 +11,12 @@ public class Collectable : MonoBehaviour
 
         if (player)
         {
-            player.inventory.Add(this);
-            Destroy(this.gameObject);
+            bool added = player.inventory.Add(this);
+
+            if (added)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

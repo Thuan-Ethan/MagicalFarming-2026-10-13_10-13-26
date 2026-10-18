@@ -5,6 +5,8 @@ using System.Collections.Generic;
 [System.Serializable]
 public class Inventory
 {
+    public event System.Action OnChanged;
+
     [System.Serializable]
     public class Slot
     {
@@ -48,24 +50,31 @@ public class Inventory
         }
     }
 
-    public void Add(Collectable itemToAdd)
+    public bool Add(Collectable itemToAdd)
     {
-        foreach(Slot slot in slots)
+        // Ưu tiên thêm vào slot đang chứa cùng loại vật phẩm.
+        foreach (Slot slot in slots)
         {
-            if(slot.type == itemToAdd.type && slot.CanAddItem())
+            if (slot.type == itemToAdd.type && slot.CanAddItem())
             {
                 slot.AddItem(itemToAdd);
-                return;
+                OnChanged?.Invoke();
+                return true;
             }
         }
 
-        foreach(Slot slot in slots)
+        // Nếu không có slot cùng loại, tìm slot trống.
+        foreach (Slot slot in slots)
         {
-            if(slot.type == CollectableType.NONE)
+            if (slot.type == CollectableType.NONE)
             {
                 slot.AddItem(itemToAdd);
-                return;
+                OnChanged?.Invoke();
+                return true;
             }
         }
+
+        // Inventory đầy, không thêm được vật phẩm.
+        return false;
     }
 }
